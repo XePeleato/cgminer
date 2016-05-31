@@ -4416,17 +4416,17 @@ uint64_t share_diff(const struct work *work)
 
 	return ret;
 }
-
+//X11 Mining compatible:
 static void regen_hash(struct work *work)
 {
-	uint32_t *data32 = (uint32_t *)(work->data);
-	unsigned char swap[80];
-	uint32_t *swap32 = (uint32_t *)swap;
-	unsigned char hash1[32];
+	uint32_t data[20];
+        char *scratchbuf;
+        uint32_t *nonce = (uint32_t *)(work->data + 76);
+        uint32_t *ohash = (uint32_t *)(work->hash);
 
-	flip80(swap32, data32);
-	sha256(swap, 80, hash1);
-	sha256(hash1, 32, (unsigned char *)(work->hash));
+        be32enc_vect(data, (const uint32_t *)work->data, 19);
+        data[19] = htobe32(*nonce);
+        X11_Hash(ohash, data);
 }
 
 static bool cnx_needed(struct pool *pool);
