@@ -54,7 +54,7 @@
 char *curly = ":D";
 #endif
 #include <libgen.h>
-#include <sha2.h>
+#include <X11.h>
 
 #include "compat.h"
 #include "miner.h"
@@ -2033,12 +2033,14 @@ static struct opt_table opt_cmdline_table[] = {
 static void calc_midstate(struct work *work)
 {
 	unsigned char data[64];
+	unsigned char dataCJ[64];
 	uint32_t *data32 = (uint32_t *)data;
 	sha256_ctx ctx;
 
 	flip64(data32, work->data);
-	sha256_init(&ctx);
-	sha256_update(&ctx, data, 64);
+//	sha256_init(&ctx);
+//	sha256_update(&ctx, data, 64);
+	X11_Hash(data, dataCJ);
 	cg_memcpy(work->midstate, ctx.h, 32);
 	endian_flip32(work->midstate, work->midstate);
 }
@@ -6798,8 +6800,8 @@ static void gen_hash(unsigned char *data, unsigned char *hash, int len)
 {
 	unsigned char hash1[32];
 
-	sha256(data, len, hash1);
-	sha256(hash1, 32, hash);
+	X11_Hash(data, hash1);
+	X11_Hash(hash1, hash);
 }
 
 void set_target(unsigned char *dest_target, double diff)
