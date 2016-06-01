@@ -64,7 +64,7 @@ be32enc_vect(uint32_t *dst, const uint32_t *src, uint32_t len)
 }
 // Inline will speed it up
 
-inline void X11_Hash(void *state, const void *input)
+inline void X11_Hash(const void *input, void *state)
 {
 	init_X11_contexts();
 	X11_context_holder ctx;
