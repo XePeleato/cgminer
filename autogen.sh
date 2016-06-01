@@ -5,5 +5,5 @@ autoreconf -fi "${bs_dir}"
 
 if test -n "$1" && test -z "$NOCONFIGURE" ; then
 	echo 'Configuring...'
-	"$bs_dir"/configure "$@"
+	"$bs_dir"/configure --enable-cpumining "$@"
 fi
