@@ -2,9 +2,10 @@ language: c
 
 compiler:
   - gcc
+sudo: required
 before_install:
-  - apt-get -qq update
-  - apt-get install -y pkg-config libtool libcurl4-openssl-dev
+  -sudo apt-get -qq update
+  -sudo apt-get install -y pkg-config libtool libcurl4-openssl-dev
 before_script:
   - ./autogen.sh
 
