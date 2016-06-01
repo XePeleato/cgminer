@@ -2035,7 +2035,7 @@ static void calc_midstate(struct work *work)
 	unsigned char data[64];
 	unsigned char dataCJ[64];
 	uint32_t *data32 = (uint32_t *)data;
-	sha256_ctx ctx;
+	X11_context_holder ctx;
 
 	flip64(data32, work->data);
 //	sha256_init(&ctx);
