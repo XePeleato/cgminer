@@ -5,7 +5,9 @@
 						Colin Percival (ArtForz)
 						lucasjones
 */
+//#include "X11.h"
 #include "miner.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -24,18 +26,19 @@
 #include "sha3/sph_simd.h"
 #include "sha3/sph_echo.h"
 
-typedef struct {
-	sph_blake512_context blake;
+typedef struct X11_context_holder {
+	sph_blake512_context	blake;
 	sph_bmw512_context      bmw;
-    sph_groestl512_context  groestl;
-    sph_skein512_context    skein;
-    sph_jh512_context       jh;
-    sph_keccak512_context   keccak;
-    sph_luffa512_context    luffa;
-    sph_cubehash512_context cubehash;
-    sph_shavite512_context  shavite;
-    sph_simd512_context     simd;
-    sph_echo512_context     echo;
+	sph_groestl512_context  groestl;
+	sph_skein512_context    skein;
+	sph_jh512_context       jh;
+	sph_keccak512_context   keccak;
+	sph_luffa512_context    luffa;
+	sph_cubehash512_context cubehash;
+	sph_shavite512_context  shavite;
+	sph_simd512_context     simd;
+	sph_echo512_context     echo;
+	uint32_t h[8];
 }X11_context_holder;
 
 X11_context_holder base_contexts;
@@ -64,7 +67,7 @@ be32enc_vect(uint32_t *dst, const uint32_t *src, uint32_t len)
 }
 // Inline will speed it up
 
-inline void X11_Hash(const void *input, void *state)
+inline void X11_Hash(const unsigned char *input, unsigned char *state)
 {
 	init_X11_contexts();
 	X11_context_holder ctx;
@@ -110,44 +113,3 @@ inline void X11_Hash(const void *input, void *state)
 }
 
 static const uint32_t diff1targ = 0x0000ffff;
-
-bool scanhash_darkcoin(struct thr_info *thr, const unsigned char __maybe_unused *pmidstate,
-		     unsigned char *pdata, unsigned char __maybe_unused *phash1,
-		     unsigned char __maybe_unused *phash, const unsigned char *ptarget,
-		     uint32_t max_nonce, uint32_t *last_nonce, uint32_t n)
-{
-	uint32_t *nonce = (uint32_t *)(pdata + 76);
-	char *scratchbuf;
-	uint32_t data[20];
-	uint32_t tmp_hash7;
-	uint32_t Htarg = le32toh(((const uint32_t *)ptarget)[7]);
-	bool ret = false;
-
-	be32enc_vect(data, (const uint32_t *)pdata, 19);
-
-	while(1) {
-		uint32_t ostate[8];
-
-		*nonce = ++n;
-		data[19] = (n);
-		xhash(ostate, data);
-		tmp_hash7 = (ostate[7]);
-
-		applog(LOG_INFO, "data7 %08lx",
-					(long unsigned int)data[7]);
-
-		if (unlikely(tmp_hash7 <= Htarg)) {
-			((uint32_t *)pdata)[19] = htobe32(n);
-			*last_nonce = n;
-			ret = true;
-			break;
-		}
-
-		if (unlikely((n >= max_nonce) || thr->work_restart)) {
-			*last_nonce = n;
-			break;
-		}
-	}
-
-	return ret;
-}

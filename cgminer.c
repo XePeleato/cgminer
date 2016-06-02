@@ -2035,13 +2035,13 @@ static void calc_midstate(struct work *work)
 	unsigned char data[64];
 	unsigned char dataCJ[64];
 	uint32_t *data32 = (uint32_t *)data;
-	X11_context_holder ctx;
+	
 
 	flip64(data32, work->data);
 //	sha256_init(&ctx);
 //	sha256_update(&ctx, data, 64);
-	X11_Hash(data, dataCJ);
-	cg_memcpy(work->midstate, ctx.h, 32);
+	X11_Hash(data, work->data);
+	cg_memcpy(work->midstate, data, 32);
 	endian_flip32(work->midstate, work->midstate);
 }
 
@@ -4421,6 +4421,7 @@ uint64_t share_diff(const struct work *work)
 //X11 Mining compatible:
 static void regen_hash(struct work *work)
 {
+	unsigned char data2[64];
 	uint32_t data[20];
         char *scratchbuf;
         uint32_t *nonce = (uint32_t *)(work->data + 76);
