@@ -1,3 +1,4 @@
+![alt tag](https://travis-ci.org/XePeleato/cgminer.svg?branch=master)
 This is a multi-threaded multi-pool FPGA and ASIC miner for bitcoin.
 
 This code is provided entirely free of charge by the programmer in his spare
