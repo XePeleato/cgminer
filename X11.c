@@ -59,7 +59,7 @@ void init_X11_contexts()
 }
 
 // Thanks to Colin Percival (sgminer) for this:
-be32enc_vect(uint32_t *dst, const uint32_t *src, uint32_t len)
+inline void be32enc_vect(uint32_t *dst, const uint32_t *src, uint32_t len)
 {
 	uint32_t i;
 	for (i = 0; i < len; i++)
@@ -67,7 +67,7 @@ be32enc_vect(uint32_t *dst, const uint32_t *src, uint32_t len)
 }
 // Inline will speed it up
 
-inline void X11_Hash(const unsigned char *input, unsigned char *state)
+inline void X11_Hash(const void *input, void *state)
 {
 	init_X11_contexts();
 	X11_context_holder ctx;

@@ -36,5 +36,5 @@ typedef struct X11_context_holder {
 	uint32_t h[8];
 }X11_context_holder;
 
-inline void X11_Hash(const unsigned char *input, unsigned char *state);
-be32enc_vect(uint32_t *dst,const uint32_t *src,uint32_t len);
+inline void X11_Hash(const void *input, void *state);
+inline void be32enc_vect(uint32_t *dst,const uint32_t *src,uint32_t len);
