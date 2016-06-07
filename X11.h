@@ -38,3 +38,10 @@ typedef struct X11_context_holder {
 
 inline void X11_Hash(const void *input, void *state);
 inline void be32enc_vect(uint32_t *dst,const uint32_t *src,uint32_t len);
+
+extern void X11_RegenHash(struct work *work);
+
+extern bool X11_ScanHash(struct thr_info *thr, const unsigned char __maybe_unused *pmidstate,
+		     unsigned char *pdata, unsigned char __maybe_unused *phash1,
+		     unsigned char __maybe_unused *phash, const unsigned char *ptarget,
+		     uint32_t max_nonce, uint32_t *last_nonce, uint32_t n);
