@@ -113,3 +113,56 @@ inline void X11_Hash(const void *input, void *state)
 }
 
 static const uint32_t diff1targ = 0x0000ffff;
+
+void X11_RegenHash(struct work *work)
+{
+       uint32_t data[20];
+        char *scratchbuf;
+        uint32_t *nonce = (uint32_t *)(work->data + 76);
+        uint32_t *ohash = (uint32_t *)(work->hash);
+
+        be32enc_vect(data, (const uint32_t *)work->data, 19);
+        data[19] = htobe32(*nonce);
+        X11_Hash(ohash, data);
+}
+
+bool X11_ScanHash(struct thr_info *thr, const unsigned char __maybe_unused *pmidstate,
+		     unsigned char *pdata, unsigned char __maybe_unused *phash1,
+		     unsigned char __maybe_unused *phash, const unsigned char *ptarget,
+		     uint32_t max_nonce, uint32_t *last_nonce, uint32_t n)
+{
+	uint32_t *nonce = (uint32_t *)(pdata + 76);
+	char *scratchbuf;
+	uint32_t data[20];
+	uint32_t tmp_hash7;
+	uint32_t Htarg = le32toh(((const uint32_t *)ptarget)[7]);
+	bool ret = false;
+
+	be32enc_vect(data, (const uint32_t *)pdata, 19);
+
+	while(1) {
+		uint32_t ostate[8];
+
+		*nonce = ++n;
+		data[19] = (n);
+		X11_Hash(ostate, data);
+		tmp_hash7 = (ostate[7]);
+
+		applog(LOG_INFO, "data7 %08lx",
+					(long unsigned int)data[7]);
+
+		if (unlikely(tmp_hash7 <= Htarg)) {
+			((uint32_t *)pdata)[19] = htobe32(n);
+			*last_nonce = n;
+			ret = true;
+			break;
+		}
+
+		if (unlikely((n >= max_nonce) || thr->work_restart)) {
+			*last_nonce = n;
+			break;
+		}
+	}
+
+	return ret;
+}
