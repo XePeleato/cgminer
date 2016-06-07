@@ -54,7 +54,8 @@
 char *curly = ":D";
 #endif
 #include <libgen.h>
-#include <X11.h>
+#include "X11.h"
+#include "sha2.h"
 
 #include "compat.h"
 #include "miner.h"
@@ -2035,13 +2036,13 @@ static void calc_midstate(struct work *work)
 	unsigned char data[64];
 	unsigned char dataCJ[64];
 	uint32_t *data32 = (uint32_t *)data;
-	
+	sha256_ctx ctx;
 
 	flip64(data32, work->data);
-//	sha256_init(&ctx);
-//	sha256_update(&ctx, data, 64);
-	X11_Hash(data, work->data);
-	cg_memcpy(work->midstate, data, 32);
+	sha256_init(&ctx);
+	sha256_update(&ctx, data, 64);
+//	X11_Hash(data, work->data);
+	cg_memcpy(work->midstate, ctx.h, 32);
 	endian_flip32(work->midstate, work->midstate);
 }
 
@@ -4421,7 +4422,7 @@ uint64_t share_diff(const struct work *work)
 //X11 Mining compatible:
 static void regen_hash(struct work *work)
 {
-	unsigned char data2[64];
+/*	unsigned char data2[64];
 	uint32_t data[20];
         char *scratchbuf;
         uint32_t *nonce = (uint32_t *)(work->data + 76);
@@ -4429,7 +4430,8 @@ static void regen_hash(struct work *work)
 
         be32enc_vect(data, (const uint32_t *)work->data, 19);
         data[19] = htobe32(*nonce);
-        X11_Hash(ohash, data);
+        X11_Hash(ohash, data); */
+        X11_RegenHash(work);
 }
 
 static bool cnx_needed(struct pool *pool);
@@ -6801,8 +6803,8 @@ static void gen_hash(unsigned char *data, unsigned char *hash, int len)
 {
 	unsigned char hash1[32];
 
-	X11_Hash(data, hash1);
-	X11_Hash(hash1, hash);
+	sha256(data, len, hash1);
+	sha256(hash1, 32, hash);
 }
 
 void set_target(unsigned char *dest_target, double diff)
